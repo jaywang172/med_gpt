@@ -25,7 +25,7 @@ import os
 BASE_MODEL_ID = "./Llama-3.1-8B-Instruct"
 SFT_DATASET_PATH = "med_dataset.json"
 SFT_ADAPTER_NAME = "llama-3.1-8b-med-robot-adapter-sft"
-DPO_DATASET_PATH = "dPO_dataset.json"
+DPO_DATASET_PATH = "dpo_dataset.json"
 DPO_ADAPTER_NAME = "llama-3.1-8b-med-robot-adapter-dpo"
 
 # 量化設定，為 VRAM 保駕護航

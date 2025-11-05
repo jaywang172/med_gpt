@@ -12,7 +12,7 @@ import os
 # ===================================================================================
 BASE_MODEL_ID = "./Llama-3.1-8B-Instruct"
 SFT_ADAPTER_PATH = "llama-3.1-8b-med-robot-adapter/final"
-DPO_DATASET_PATH = "dPO_dataset.json" # 假設此 JSON 格式正確
+DPO_DATASET_PATH = "dpo_dataset.json" # 假設此 JSON 格式正確
 NEW_DPO_ADAPTER_NAME = "llama-3.1-8b-med-robot-adapter-dpo"
 
 # ===================================================================================
