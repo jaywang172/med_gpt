@@ -1,1091 +1,378 @@
-<div align="center">
+# Med-LLM: 基於大型語言模型之智慧醫療送藥機器人系統
 
-# 🏥 Med-LLM: 醫療 AI 革命的里程碑
-## *下一世代智慧醫療送藥機器人語言模型*
+## 摘要
 
-<img src="https://img.shields.io/badge/🚀%20Status-Production%20Ready-brightgreen?style=for-the-badge" alt="Status">
-<img src="https://img.shields.io/badge/🤖%20AI%20Model-Llama%203.1--8B-blue?style=for-the-badge" alt="AI Model">
-<img src="https://img.shields.io/badge/⚕️%20Domain-Medical%20AI-red?style=for-the-badge" alt="Domain">
-<img src="https://img.shields.io/badge/🔬%20Research-Cutting%20Edge-purple?style=for-the-badge" alt="Research">
+本研究提出一個專門針對醫療領域設計的大型語言模型系統 Med-LLM，旨在提供智慧化的藥物遞送與諮詢服務。本系統基於 Meta 公司開發的 Llama 3.1-8B-Instruct 基礎模型，採用參數高效微調技術（Parameter-Efficient Fine-Tuning, PEFT）中的低秩適應（Low-Rank Adaptation, LoRA）方法，結合監督式微調（Supervised Fine-Tuning, SFT）與直接偏好優化（Direct Preference Optimization, DPO）兩階段訓練策略，建構出一個具備醫療專業知識、安全可靠且富有同理心的對話式人工智慧系統。
 
-[![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org)
-[![Transformers](https://img.shields.io/badge/🤗%20Transformers-4.35+-FFD21E?style=for-the-badge)](https://huggingface.co/transformers)
-[![CUDA](https://img.shields.io/badge/CUDA-11.8+-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](https://developer.nvidia.com/cuda-toolkit)
+## 1. 研究背景與動機
 
-### *「讓 AI 成為醫療守護者，讓科技點亮生命之光」*
+### 1.1 研究背景
 
----
+隨著人口老化與慢性病患者數量持續增加，醫療機構面臨日益沉重的人力負擔。藥物管理與遞送服務是醫療照護中的重要環節，然而傳統的人工作業模式不僅效率有限，且容易因人為疏失導致用藥安全問題。近年來，人工智慧技術的快速發展為醫療領域帶來新的解決方案，特別是大型語言模型（Large Language Models, LLMs）在自然語言理解與生成方面展現出卓越的能力，為建構智慧醫療對話系統提供了技術基礎。
 
-</div>
+### 1.2 研究動機
 
-## 🌟 專案願景
+本研究旨在解決以下關鍵問題：
 
-**Med-LLM** 不僅僅是一個語言模型，它是醫療 AI 領域的突破性創新，代表著人工智慧在醫療保健領域的新紀元。基於 Meta 最先進的 **Llama 3.1-8B-Instruct** 架構，結合獨創的 **雙階段深度強化學習策略**，Med-LLM 為全球醫療機構帶來了前所未有的智慧化送藥解決方案。
+1. **醫療專業知識整合**：如何將複雜的醫療專業知識有效整合至大型語言模型中。
+2. **患者安全保障**：如何確保系統提供的資訊符合醫療安全標準，避免產生有害建議。
+3. **人性化互動**：如何使系統具備同理心，提供溫暖且專業的醫療服務體驗。
+4. **計算資源優化**：如何在有限的計算資源下，實現高效的模型訓練與部署。
 
-### 🎯 核心使命
-- **🛡️ 患者安全至上**: 每一個回應都經過嚴格的安全性驗證
-- **🧠 專業知識深度**: 涵蓋藥理學、臨床醫學、護理學等多領域
-- **❤️ 人性化關懷**: 注入同理心與溫暖，讓科技有溫度
-- **🌐 普惠醫療**: 降低醫療門檻，讓優質醫療服務觸手可及
+## 2. 系統架構
 
-## 🚀 革命性突破
+### 2.1 基礎模型
 
-<table>
-<tr>
-<td width="50%">
+本系統採用 Meta 公司開發的 Llama 3.1-8B-Instruct 作為基礎模型。Llama 3.1 系列是基於 Transformer 架構的自回歸語言模型，具有 80 億參數規模，支援多語言理解與生成，並已針對指令遵循任務進行預訓練優化。
 
-### 🧬 **先進 AI 架構**
-- **🔥 Llama 3.1-8B** 最新大語言模型
-- **⚡ 雙階段強化學習** (SFT + DPO)
-- **🎯 LoRA 高效微調** 技術
-- **💎 4-bit 量化優化** 記憶體使用
+### 2.2 參數高效微調技術
 
-</td>
-<td width="50%">
+考量到全參數微調（Full Fine-Tuning）所需的龐大計算資源與記憶體需求，本研究採用 LoRA（Low-Rank Adaptation）技術進行參數高效微調。LoRA 透過在模型的注意力層中插入低秩矩陣，僅訓練少量新增參數，即可達到接近全參數微調的效果，同時大幅降低記憶體使用量與訓練時間。
 
-### 🏥 **醫療專業化**
-- **📚 830+ 專業醫療對話** 訓練語料
-- **🎓 多科室場景覆蓋** (急診/病房/藥局)
-- **⚕️ 藥理學知識整合**
-- **🔒 醫療安全協議** 嚴格遵循
+**LoRA 配置參數：**
 
-</td>
-</tr>
-<tr>
-<td>
+- Rank (r): 16
+- Alpha: 32
+- Dropout: 0.05
+- 目標模組：q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj
 
-### 🌟 **用戶體驗**
-- **💬 自然對話互動**
-- **🤖 智慧上下文理解**
-- **❤️ 同理心回應機制**
-- **📱 多平台部署支援**
+### 2.3 量化技術
 
-</td>
-<td>
+為進一步優化記憶體使用，本系統採用 4-bit 量化技術，使用 BitsAndBytes 函式庫實現 NF4（Normal Float 4-bit）量化方法，配合 bfloat16 計算精度，在保持模型效能的同時，將記憶體需求降低約 75%。
 
-### 🛡️ **安全保障**
-- **✅ 多層安全驗證**
-- **🚨 風險預警系統**
-- **👨‍⚕️ 專業醫師諮詢提醒**
-- **📋 用藥安全檢查**
+**量化配置：**
 
-</td>
-</tr>
-</table>
+- 量化位元數：4-bit
+- 量化類型：NF4
+- 計算精度：bfloat16
+- 雙重量化：啟用
 
-## 🏗️ 系統架構設計
+## 3. 訓練方法論
 
-<div align="center">
+### 3.1 兩階段訓練策略
 
-```mermaid
-graph TB
-    A[🧠 Llama 3.1-8B Base Model] --> B[📚 SFT Training]
-    B --> C[🎯 Medical Expert Model]
-    C --> D[💎 DPO Optimization]
-    D --> E[🏆 Med-LLM Final Model]
-    
-    F[📊 Medical Dataset] --> B
-    G[⚖️ Preference Dataset] --> D
-    
-    E --> H[🤖 Drug Delivery Robot]
-    E --> I[💬 Chat Interface]
-    E --> J[🏥 Hospital System]
-    
-    style A fill:#e1f5fe
-    style E fill:#c8e6c9
-    style H fill:#fff3e0
-    style I fill:#f3e5f5
-    style J fill:#fce4ec
+本系統採用兩階段訓練策略，結合監督式微調與直接偏好優化，以達到最佳的模型效能與安全性。
+
+#### 3.1.1 第一階段：監督式微調（SFT）
+
+監督式微調階段的目標是使基礎模型學習醫療領域的專業知識與對話模式。本階段使用精心設計的醫療對話資料集，涵蓋多種臨床場景與藥物類型。
+
+**訓練參數：**
+
+- 學習率：2e-4
+- 訓練輪數：2
+- 批次大小：1
+- 梯度累積步數：4
+- 學習率調度器：Cosine
+- 優化器：Paged AdamW 8-bit
+- 預熱比例：0.05
+- 混合精度訓練：FP16
+
+#### 3.1.2 第二階段：直接偏好優化（DPO）
+
+直接偏好優化階段旨在提升模型回應的安全性與專業性。DPO 是一種無需獎勵模型的強化學習方法，透過對比優選（chosen）與劣選（rejected）回應對，直接優化模型的輸出分佈，使其更符合人類偏好。
+
+**訓練參數：**
+
+- 學習率：5e-6
+- 訓練輪數：1
+- 批次大小：1
+- 梯度累積步數：2
+- Beta 參數：0.1
+- 學習率調度器：Cosine
+- 優化器：Paged AdamW 8-bit
+- 預熱比例：0.1
+- 混合精度訓練：FP16
+- Padding 方向：左側
+
+### 3.2 資料集
+
+#### 3.2.1 監督式微調資料集
+
+監督式微調資料集包含 830 筆高品質醫療對話樣本，涵蓋以下場景：
+
+- 藥局服務（25%）
+- 病房照護（20%）
+- 急診處理（20%）
+- 居家護理（15%）
+- 兒童專科（10%）
+- 孕婦護理（10%）
+
+每筆資料包含以下欄位：
+
+- **instruction**：任務指令，描述送藥機器人當前的服務場景
+- **input**：輸入資訊，如藥品名稱與劑量
+- **output**：期望的模型回應，包含用藥指導與注意事項
+- **system**：系統提示詞，定義機器人的角色與行為規範
+
+**資料範例：**
+
+```json
+{
+  "instruction": "我正在為您送達阿司匹林，請說明用藥注意事項。",
+  "input": "藥品：阿司匹林 100mg",
+  "output": "您好！我為您送來阿司匹林 100mg。這是用於血栓預防的藥物，主要注意事項：1)可能的副作用包括胃刺激；2)重要提醒：飯後服用；3)如有任何不適請立即聯繫醫師；4)請按時服用，不要擅自調整劑量。祝您早日康復！",
+  "system": "你是專業的送藥機器人，正在藥局為老年人患者提供藥物遞送服務。"
+}
 ```
 
-</div>
+#### 3.2.2 直接偏好優化資料集
 
-### 📁 **專案文件結構**
+DPO 資料集包含多組對比樣本，每組包含一個提示（prompt）、一個優選回應（chosen）與一個劣選回應（rejected）。優選回應強調安全性、專業性與同理心，而劣選回應則可能存在資訊不完整、偏離重點或安全性考量不足等問題。
 
-```
-🏥 Med-LLM/
-├── 🚀 Core Training Scripts
-│   ├── 📈 train_med_llm.py        # 🥇 第一階段：SFT 監督式微調
-│   ├── 🎯 train_dpo.py           # 🥈 第二階段：DPO 偏好優化 (完整版)
-│   ├── ⚡ train_dpo_only.py      # 🔄 DPO 獨立訓練腳本
-│   └── 🌟 combine.py             # 🎭 一鍵整合訓練腳本
-├── 🧪 Testing & Evaluation
-│   └── 💬 test_model.py          # 🎮 互動式聊天測試介面
-├── 📊 Training Datasets
-│   ├── 📚 med_dataset.json       # 🏥 醫療專業訓練語料 (830 samples)
-│   └── ⚖️ dpo_dataset.json       # 🎯 偏好優化對比資料
-├── 📖 Documentation
-│   └── 📋 README.md              # 📝 完整專案說明文件
-└── 🤖 Model Artifacts
-    ├── 🎓 llama-3.1-8b-med-robot-adapter-sft/
-    └── 🏆 llama-3.1-8b-med-robot-adapter-dpo/
+**資料範例：**
+
+```json
+{
+  "prompt": "我中午的降血壓藥忘記吃了，怎麼辦？",
+  "chosen": "別擔心，忘記吃藥是常有的事。最重要的原則是『千萬不要一次吃兩倍的劑量』。如果現在離您下次服藥的時間比較近了，最安全的做法是直接跳過這次，等正常時間再吃下次的藥就好。",
+  "rejected": "別著急！你可以查一下你的藥物清單，看看今天的藥物配送時間和你的藥物名。然後，我會幫你送來你的藥物。"
+}
 ```
 
-## 🚀 極速部署指南
+## 4. 實驗環境與系統需求
 
-<div align="center">
+### 4.1 硬體需求
 
-### ⚡ **一鍵啟動，開箱即用**
+**最低配置：**
 
-</div>
+- GPU：12GB VRAM（如 NVIDIA RTX 3060 12GB）
+- 系統記憶體：16GB RAM
+- 儲存空間：100GB 可用空間
+- CUDA 版本：11.8 或更高
 
-<table>
-<tr>
-<td width="33%">
+**建議配置：**
 
-### 🖥️ **系統需求**
+- GPU：24GB VRAM（如 NVIDIA RTX 4090）
+- 系統記憶體：32GB RAM 或更高
+- 儲存空間：200GB SSD
+- CUDA 版本：12.0 或更高
 
-**最低配置**
-- GPU: 12GB VRAM
-- RAM: 16GB
-- CUDA: 11.8+
-- Python: 3.8+
+### 4.2 軟體環境
 
-**推薦配置**
-- GPU: RTX 4090 (24GB)
-- RAM: 32GB
-- SSD: 100GB+
+本系統基於 Python 3.8 或更高版本開發，主要依賴以下函式庫：
 
-</td>
-<td width="33%">
+- PyTorch >= 2.0.0：深度學習框架
+- Transformers >= 4.35.0：Hugging Face 模型與分詞器
+- Datasets >= 2.14.0：資料集處理工具
+- Accelerate >= 0.21.0：分散式訓練加速
+- PEFT >= 0.6.0：參數高效微調工具
+- TRL >= 0.7.0：強化學習訓練工具
+- BitsAndBytes >= 0.41.0：量化優化工具
+- SentencePiece >= 0.1.99：文本分詞工具
+- Protobuf >= 3.20.0：資料序列化工具
 
-### 📦 **核心依賴**
+## 5. 系統部署與使用
+
+### 5.1 環境安裝
+
+#### 步驟 1：安裝 PyTorch 與 CUDA 支援
 
 ```bash
-🔥 torch>=2.0.0
-🤗 transformers>=4.35.0
-📊 datasets>=2.14.0
-⚡ accelerate>=0.21.0
-🎯 peft>=0.6.0
-🏆 trl>=0.7.0
-💎 bitsandbytes>=0.41.0
-```
-
-</td>
-<td width="33%">
-
-### ⏱️ **預估時間**
-
-**環境安裝**: 5-10 分鐘
-**模型下載**: 15-30 分鐘
-**SFT 訓練**: 2-4 小時
-**DPO 優化**: 1-2 小時
-**總計**: ~4-6 小時
-
-</td>
-</tr>
-</table>
-
-### 🔧 **環境安裝**
-
-#### Step 1: 安裝 CUDA 環境
-```bash
-# 安裝 PyTorch with CUDA 11.8
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 ```
 
-#### Step 2: 安裝核心依賴
-```bash
-# 一鍵安裝所有依賴
-pip install transformers datasets accelerate peft trl bitsandbytes
+#### 步驟 2：安裝相關依賴
 
-# 或使用 requirements.txt (推薦)
+```bash
 pip install -r requirements.txt
 ```
 
-#### Step 3: 驗證安裝
+#### 步驟 3：驗證 CUDA 環境
+
 ```python
 import torch
-print(f"🚀 CUDA 可用: {torch.cuda.is_available()}")
-print(f"🎯 GPU 數量: {torch.cuda.device_count()}")
-print(f"💎 GPU 名稱: {torch.cuda.get_device_name()}")
+print(f"CUDA 可用：{torch.cuda.is_available()}")
+print(f"GPU 數量：{torch.cuda.device_count()}")
+print(f"GPU 名稱：{torch.cuda.get_device_name(0)}")
 ```
 
-### 📥 **模型準備**
+### 5.2 模型準備
 
-<div align="center">
+本系統需要下載 Llama 3.1-8B-Instruct 基礎模型。可透過以下方式取得：
 
-#### 🦙 **Llama 3.1-8B-Instruct 下載**
+#### 方法 1：使用 Hugging Face CLI
 
-</div>
-
-**方案一：Hugging Face Hub (推薦)**
 ```bash
-# 使用 Hugging Face CLI
 huggingface-cli download meta-llama/Llama-3.1-8B-Instruct --local-dir ./Llama-3.1-8B-Instruct
 ```
 
-**方案二：Git LFS**
+#### 方法 2：使用 Git LFS
+
 ```bash
 git clone https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct ./Llama-3.1-8B-Instruct
 ```
 
-**方案三：Python 腳本**
+#### 方法 3：程式化下載
+
 ```python
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-# 自動下載並快取
 model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-3.1-8B-Instruct")
 tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.1-8B-Instruct")
 ```
 
-## 🎓 極致訓練策略
+### 5.3 模型訓練
 
-<div align="center">
+#### 5.3.1 整合式訓練（建議）
 
-### 🏆 **雙階段深度強化學習管道**
-
-</div>
-
-<table>
-<tr>
-<td width="50%">
-
-### 🌟 **方案一：一鍵智慧訓練（推薦）**
+執行整合式訓練腳本，一次完成 SFT 與 DPO 兩階段訓練：
 
 ```bash
-🚀 python combine.py
+python combine.py
 ```
 
-**✨ 完全自動化流程**
-- 🔄 自動記憶體管理
-- 📊 實時訓練監控
-- 🎯 最佳化超參數
-- 💾 自動模型保存
+此腳本將自動執行以下流程：
 
-**⏱️ 預估時間**: 4-6 小時
-**🎯 成功率**: 99.9%
+1. 載入基礎模型與 LoRA 配置
+2. 執行監督式微調階段
+3. 儲存 SFT Adapter
+4. 釋放記憶體
+5. 執行直接偏好優化階段
+6. 儲存最終 DPO Adapter
 
-</td>
-<td width="50%">
+**預估訓練時間：**
 
-### 🔧 **方案二：分階段精細控制**
+- SFT 階段：2-4 小時（依硬體配置而定）
+- DPO 階段：1-2 小時
+- 總計：約 4-6 小時
 
-**第一階段：SFT 基礎訓練**
-```bash
-📚 python train_med_llm.py
-```
+#### 5.3.2 分階段訓練
 
-**第二階段：DPO 偏好優化**
-```bash
-💎 python train_dpo_only.py
-```
+若需要更靈活的訓練控制，可分別執行各階段訓練：
 
-**🔬 適用場景**
-- 研究實驗需求
-- 參數調優測試
-- 分階段調試
-
-</td>
-</tr>
-</table>
-
----
-
-### 📈 **訓練階段詳解**
-
-<div align="center">
-
-```mermaid
-timeline
-    title 🏥 Med-LLM 訓練時間軸
-    
-    section 準備階段
-        環境檢查    : 檢驗 CUDA 環境
-                    : 載入基礎模型
-                    : 資料集預處理
-    
-    section SFT 階段
-        監督學習    : 830+ 醫療對話
-                    : LoRA 微調技術
-                    : 2-4 小時訓練
-                    
-    section DPO 階段  
-        偏好學習    : 安全性優化
-                    : 回應品質提升
-                    : 1-2 小時優化
-    
-    section 完成階段
-        模型測試    : 安全性驗證
-                    : 效能評估
-                    : 部署準備
-```
-
-</div>
-
-#### 🥇 **第一階段：SFT 監督式微調**
-
-<table>
-<tr>
-<td width="60%">
-
-**🎯 訓練目標**
-- 學習醫療專業術語和知識
-- 掌握送藥機器人對話模式
-- 建立基礎醫療問答能力
-- 培養同理心溝通風格
-
-**📊 訓練資料**
-- **規模**: 830 筆高品質醫療對話
-- **覆蓋**: 6 大醫療場景 × 多種藥物類型
-- **品質**: 人工審核 + 專業醫師驗證
-
-</td>
-<td width="40%">
-
-**⚙️ 技術參數**
-```yaml
-🔧 LoRA Config:
-  rank: 16
-  alpha: 32
-  dropout: 0.05
-  
-📈 Training Args:
-  epochs: 2
-  batch_size: 1×4
-  learning_rate: 2e-4
-  scheduler: cosine
-```
-
-**⏱️ 預估時間**: 2-4 小時
-**💾 輸出路徑**: `sft-adapter/final/`
-
-</td>
-</tr>
-</table>
-
-#### 🥈 **第二階段：DPO 直接偏好優化**
-
-<table>
-<tr>
-<td width="60%">
-
-**🎯 優化目標**
-- 提升回應安全性和專業度
-- 強化醫療倫理遵循
-- 優化用戶體驗和滿意度
-- 減少有害或不當回應
-
-**⚖️ 偏好資料**
-- **類型**: Chosen vs Rejected 對比
-- **焦點**: 安全性、專業性、同理心
-- **驗證**: 醫療專家人工標註
-
-</td>
-<td width="40%">
-
-**⚙️ 技術參數**
-```yaml
-🎯 DPO Config:
-  beta: 0.1
-  epochs: 1
-  batch_size: 1×2
-  learning_rate: 5e-6
-  
-🛡️ Safety Features:
-  ref_model: auto
-  padding: left
-  precision: fp16
-```
-
-**⏱️ 預估時間**: 1-2 小時
-**💾 輸出路徑**: `dpo-adapter/final/`
-
-</td>
-</tr>
-</table>
-
-## 🧪 智慧測試與驗證
-
-<div align="center">
-
-### 🎮 **沉浸式互動測試體驗**
-
-</div>
-
-<table>
-<tr>
-<td width="50%">
-
-### 💬 **啟動測試介面**
+**第一階段：監督式微調**
 
 ```bash
-🎯 python test_model.py
+python train_med_llm.py
 ```
 
-**🌟 核心功能**
-- 🔄 **多輪連續對話**: 智慧上下文記憶
-- ⚡ **實時回應生成**: 毫秒級響應速度
-- 🏥 **專業醫療模擬**: 真實場景測試
-- 🛡️ **安全性監控**: 即時風險檢測
+**第二階段：直接偏好優化**
 
-</td>
-<td width="50%">
-
-### 📊 **測試評估指標**
-
-**🎯 專業性評估**
-- 醫療術語準確性: 95%+
-- 知識點覆蓋率: 90%+
-- 回應邏輯性: 98%+
-
-**🛡️ 安全性評估**  
-- 風險回應攔截: 99.9%
-- 醫師諮詢提醒: 100%
-- 有害內容過濾: 99.8%
-
-</td>
-</tr>
-</table>
-
----
-
-### 🎭 **實戰對話演示**
-
-<div align="center">
-
-#### 💊 **用藥安全諮詢場景**
-
-</div>
-
-<table>
-<tr>
-<td width="50%">
-
-**👤 用戶輸入**
-```
-我忘記吃降血壓藥了，現在還能補吃嗎？
-```
-
-**🤖 Med-LLM 專業回應**
-```
-🏥 別擔心，忘記吃藥是很常見的情況。
-
-🛡️ 最重要的安全原則：
-「絕對不要一次吃雙倍劑量」
-
-⏰ 判斷原則：
-• 距離下次服藥 >50% 間隔 → 可補吃
-• 距離下次服藥 <50% 間隔 → 直接跳過
-
-👨‍⚕️ 溫馨提醒：
-任何用藥疑問請諮詢您的主治醫師，
-確保用藥安全是我們共同的目標。
-```
-
-</td>
-<td width="50%">
-
-**🔍 AI 分析能力展示**
-
-**✅ 安全性檢查**
-- 識別用藥風險場景
-- 提供安全用藥建議  
-- 避免醫療建議越界
-
-**🧠 專業知識運用**
-- 調用藥理學知識
-- 考慮時間間隔因子
-- 遵循醫療安全協議
-
-**❤️ 同理心表達**
-- 理解患者焦慮
-- 給予情感支持
-- 專業而溫暖的語調
-
-</td>
-</tr>
-</table>
-
-<div align="center">
-
-#### 🚨 **緊急狀況處理場景**
-
-</div>
-
-<table>
-<tr>
-<td width="50%">
-
-**👤 用戶輸入**
-```
-我吃了兩倍劑量的降血壓藥，
-感覺頭暈，怎麼辦？
-```
-
-**🤖 Med-LLM 緊急回應**
-```
-🚨 這是需要立即關注的情況！
-
-⚡ 立即行動建議：
-1. 馬上坐下或躺下，避免跌倒
-2. 如果症狀嚴重，立即撥打 119
-3. 保持冷靜，有人陪伴最好
-
-📞 務必聯繫：
-• 您的主治醫師
-• 醫院急診科
-• 中毒控制中心
-
-⚠️ 重要提醒：
-我無法替代專業醫療評估，
-請立即尋求醫療協助！
-```
-
-</td>
-<td width="50%">
-
-**🛡️ 緊急處理能力**
-
-**🔴 風險識別**
-- 檢測藥物過量關鍵字
-- 評估症狀嚴重程度
-- 觸發緊急回應模式
-
-**⚡ 即時指導**
-- 提供立即安全措施
-- 明確指示求助管道
-- 避免延誤救治時機
-
-**🚫 責任界限**
-- 不提供診斷建議
-- 強調專業醫療重要性
-- 避免醫療責任承擔
-
-</td>
-</tr>
-</table>
-
-## 📊 精品資料集架構
-
-<div align="center">
-
-### 🏆 **世界級醫療訓練語料庫**
-
-</div>
-
-<table>
-<tr>
-<td width="50%">
-
-### 📚 **SFT 監督學習資料集**
-
-**🎯 資料規模與品質**
-- **總量**: 830 筆專業醫療對話
-- **品質**: 人工審核 + 醫師驗證
-- **覆蓋**: 6 大醫療場景完整涵蓋
-- **更新**: 持續迭代優化
-
-**🏥 場景分布**
-```
-🏪 藥局服務     │ ████████ 25%
-🏥 病房照護     │ ██████ 20%  
-🚑 急診處理     │ ██████ 20%
-🏠 居家護理     │ █████ 15%
-👶 兒童專科     │ ████ 10%
-🤰 孕婦護理     │ ███ 10%
-```
-
-</td>
-<td width="50%">
-
-### ⚖️ **DPO 偏好優化資料集**
-
-**🎯 資料特色**
-- **類型**: Chosen vs Rejected 對比
-- **焦點**: 安全性 + 專業性 + 同理心
-- **驗證**: 多重醫療專家審核
-- **效果**: 顯著提升回應品質
-
-**🛡️ 優化重點**
-```yaml
-🔒 安全性強化: 99.9%
-💡 專業度提升: 95%+
-❤️ 同理心增強: 90%+
-🚫 風險回應減少: 98%
-```
-
-</td>
-</tr>
-</table>
-
----
-
-### 🔬 **資料結構深度解析**
-
-<div align="center">
-
-#### 📚 **SFT 資料格式範例**
-
-</div>
-
-```json
-{
-  "instruction": "🎯 我正在為您送達阿司匹林，請說明用藥注意事項。",
-  "input": "💊 藥品：阿司匹林 100mg",
-  "output": "🏥 您好！我為您送來阿司匹林 100mg。這是用於血栓預防的藥物，主要注意事項：\n1)🛡️ 可能的副作用包括胃刺激\n2)⏰ 重要提醒：飯後服用\n3)👨‍⚕️ 如有任何不適請立即聯繫醫師\n4)📋 請按時服用，不要擅自調整劑量。\n💙 祝您早日康復！",
-  "system": "🤖 你是專業的送藥機器人，正在藥局為老年人患者提供藥物遞送服務。"
-}
-```
-
-<div align="center">
-
-#### ⚖️ **DPO 偏好對比範例**
-
-</div>
-
-<table>
-<tr>
-<td width="50%">
-
-**✅ Chosen Response (優選)**
-```json
-{
-  "prompt": "我中午的降血壓藥忘記吃了，怎麼辦？",
-  "chosen": "🛡️ 別擔心，忘記吃藥是常有的事。
-  
-  最重要的原則：
-  『千萬不要一次吃兩倍的劑量』
-  
-  ⏰ 如果現在離下次服藥時間比較近，
-  最安全的做法是直接跳過這次，
-  等正常時間再吃下次的藥就好。
-  
-  👨‍⚕️ 任何疑問請諮詢您的醫師。"
-}
-```
-
-</td>
-<td width="50%">
-
-**❌ Rejected Response (劣選)**
-```json
-{
-  "rejected": "🤖 別著急！你可以查一下
-  你的藥物清單，看看今天的
-  藥物配送時間和你的藥物名。
-  
-  然後，我會幫你送來你的藥物。"
-}
-```
-
-**🔍 劣選原因分析**
-- 未提供醫療安全建議
-- 回應偏離核心問題
-- 缺乏專業醫療指導
-
-</td>
-</tr>
-</table>
-
-## ⚙️ 前沿技術棧
-
-<div align="center">
-
-### 🏆 **企業級 AI 技術架構**
-
-</div>
-
-<table>
-<tr>
-<td width="33%">
-
-### 🧬 **核心架構**
-
-**🔥 基礎模型**
-- Meta Llama 3.1-8B-Instruct
-- 8B 參數規模
-- 多語言支援
-- 先進 Transformer 架構
-
-**🎯 微調技術**
-- LoRA (Low-Rank Adaptation)
-- 參數高效微調
-- 記憶體友善設計
-- 快速部署能力
-
-</td>
-<td width="33%">
-
-### 💎 **優化技術**
-
-**⚡ 量化加速**
-- 4-bit BitsAndBytesConfig
-- NF4 量化演算法
-- bfloat16 計算精度
-- 75% 記憶體節省
-
-**🚀 訓練優化**
-- AdamW 8-bit 優化器
-- 梯度累積技術
-- 混合精度訓練
-- 動態學習率調整
-
-</td>
-<td width="33%">
-
-### 🛡️ **安全保障**
-
-**🔒 多層防護**
-- 輸入內容過濾
-- 輸出安全檢查
-- 風險等級評估
-- 緊急響應機制
-
-**📊 監控系統**
-- 實時效能監控
-- 回應品質追蹤
-- 異常行為檢測
-- 使用統計分析
-
-</td>
-</tr>
-</table>
-
----
-
-### 🎯 **訓練超參數配置**
-
-<div align="center">
-
-```mermaid
-graph LR
-    A[🎯 LoRA Config] --> B[r=16<br/>alpha=32<br/>dropout=0.05]
-    C[📈 SFT Training] --> D[lr=2e-4<br/>epochs=2<br/>batch=1×4]
-    E[💎 DPO Training] --> F[lr=5e-6<br/>epochs=1<br/>beta=0.1]
-    G[🔧 System Opts] --> H[fp16=True<br/>8bit-adam<br/>cosine-lr]
-    
-    style A fill:#e1f5fe
-    style C fill:#f3e5f5
-    style E fill:#fff3e0
-    style G fill:#e8f5e8
-```
-
-</div>
-
-<table>
-<tr>
-<td width="50%">
-
-### 🥇 **SFT 階段參數**
-
-```yaml
-🔧 LoRA Configuration:
-  rank: 16                    # 低秩矩陣維度
-  alpha: 32                   # 縮放因子
-  dropout: 0.05               # 正則化參數
-  target_modules:             # 目標模組
-    - q_proj, k_proj, v_proj
-    - o_proj, gate_proj
-    - up_proj, down_proj
-
-📈 Training Arguments:
-  learning_rate: 2e-4         # 學習率
-  num_epochs: 2               # 訓練輪數
-  batch_size: 1               # 批次大小
-  gradient_accum: 4           # 梯度累積
-  warmup_ratio: 0.05          # 預熱比例
-  scheduler: cosine           # 學習率調度
-```
-
-</td>
-<td width="50%">
-
-### 🥈 **DPO 階段參數**
-
-```yaml
-💎 DPO Configuration:
-  beta: 0.1                   # DPO 溫度參數
-  learning_rate: 5e-6         # 學習率 (較低)
-  num_epochs: 1               # 訓練輪數
-  batch_size: 1               # 批次大小
-  gradient_accum: 2           # 梯度累積
-  warmup_ratio: 0.1           # 預熱比例
-  padding_side: left          # 填充方向
-
-🛡️ Safety Settings:
-  ref_model: auto             # 自動參考模型
-  padding_value: eos_token    # 填充值
-  max_length: 2048            # 最大長度
-  truncation: true            # 截斷設定
-```
-
-</td>
-</tr>
-</table>
-
-## 🌍 全球應用場景
-
-<div align="center">
-
-### 🏥 **重塑醫療服務生態系統**
-
-</div>
-
-<table>
-<tr>
-<td width="50%">
-
-### 🏥 **醫療機構革新**
-
-**🏪 智慧藥局系統**
-- 🤖 24/7 智慧藥物諮詢服務
-- 📋 個人化用藥建議生成
-- ⚡ 即時藥物交互作用檢查
-- 📊 用藥依從性監控追蹤
-
-**🏥 病房照護升級**
-- 🛏️ 床邊智慧送藥服務
-- 👩‍⚕️ 護理人員 AI 助手
-- 📱 患者教育互動系統
-- 🔔 智慧用藥提醒推播
-
-**🚑 急診高效處理**
-- ⚡ 急性症狀快速評估
-- 💊 緊急用藥指導建議
-- 📞 毒物諮詢即時回應
-- 🆘 生命徵象監控告警
-
-</td>
-<td width="50%">
-
-### 🏠 **居家照護創新**
-
-**👴 長者照護專案**
-- 🧓 老年病用藥複雜管理
-- 🔍 認知障礙友善介面
-- 👨‍👩‍👧‍👦 家庭照護者支援系統
-- 📈 健康狀況追蹤報告
-
-**🤱 孕產婦專業服務**
-- 🤰 孕期用藥安全評估
-- 🍼 哺乳期藥物相容性
-- 👶 新生兒照護指導
-- 📅 產檢用藥時程規劃
-
-**🏃‍♂️ 慢性病智慧管理**
-- 💉 糖尿病胰島素調節
-- 💊 高血壓用藥優化
-- ❤️ 心血管疾病監控
-- 🧠 精神健康藥物管理
-
-</td>
-</tr>
-</table>
-
----
-
-### 🚀 **未來發展藍圖**
-
-<div align="center">
-
-```mermaid
-graph TB
-    A[🏥 Med-LLM v1.0<br/>送藥機器人] --> B[🌟 v2.0<br/>多模態醫療助手]
-    B --> C[🚀 v3.0<br/>全科智慧醫師]
-    C --> D[🌍 v4.0<br/>全球醫療網路]
-    
-    A --> E[📱 移動應用]
-    A --> F[🤖 實體機器人]
-    A --> G[☁️ 雲端服務]
-    
-    B --> H[👁️ 視覺診斷]
-    B --> I[🔊 語音互動]
-    B --> J[📊 數據分析]
-    
-    C --> K[🧬 基因諮詢]
-    C --> L[🔬 病理分析]
-    C --> M[🎯 精準醫療]
-    
-    D --> N[🌐 全球連接]
-    D --> O[🤝 跨語言服務]
-    D --> P[📡 遠距醫療]
-    
-    style A fill:#e1f5fe
-    style B fill:#f3e5f5
-    style C fill:#fff3e0
-    style D fill:#e8f5e8
-```
-
-</div>
-
-<table>
-<tr>
-<td width="25%">
-
-### 📱 **移動端應用**
-
-**🔥 即將推出**
-- iOS/Android 原生應用
-- 離線模式支援
-- 健康數據同步
-- 家庭共享功能
-
-</td>
-<td width="25%">
-
-### 🤖 **實體機器人整合**
-
-**🚀 研發中**
-- 自主導航送藥
-- 生理監測感應
-- 情感識別交互
-- 緊急呼叫系統
-
-</td>
-<td width="25%">
-
-### ☁️ **雲端服務平台**
-
-**🌟 規劃中**
-- SaaS 部署方案
-- 多租戶架構
-- 彈性擴展能力
-- 全球 CDN 加速
-
-</td>
-<td width="25%">
-
-### 🌍 **國際化擴展**
-
-**🎯 願景目標**
-- 多語言本地化
-- 跨文化適應
-- 國際法規遵循
-- 全球醫療標準
-
-</td>
-</tr>
-</table>
-
-## ⚠️ 法律聲明與責任限制
-
-<div align="center">
-
-### 🛡️ **醫療責任與安全使用準則**
-
-</div>
-
-<table>
-<tr>
-<td width="50%">
-
-### ⚖️ **法律免責聲明**
-
-**🚨 醫療責任限制**
-- 本系統僅供參考，不構成醫療建議
-- 不能替代專業醫師的診斷和治療
-- 緊急情況請立即就醫或撥打急救電話
-- 使用者需自行承擔使用風險
-
-**📜 合規性要求**
-- 必須遵守當地醫療法規
-- 符合數據隱私保護條例
-- 遵循醫療設備監管標準
-- 配合相關機構監督檢查
-
-</td>
-<td width="50%">
-
-### 🎯 **使用安全準則**
-
-**✅ 正確使用方式**
-- 作為醫療諮詢的輔助工具
-- 用於基礎健康知識普及
-- 協助藥物配送流程管理
-- 提供用藥安全提醒服務
-
-**❌ 禁止使用場景**
-- 替代專業醫療診斷
-- 處理危急生命情況
-- 提供處方藥物建議
-- 進行手術或侵入性操作
-
-</td>
-</tr>
-</table>
-
----
-
-## 🤝 開源社群與貢獻
-
-<div align="center">
-
-### 🌟 **共建醫療 AI 未來**
-
-</div>
-
-<table>
-<tr>
-<td width="33%">
-
-### 🔧 **代碼貢獻**
-
-**📝 貢獻流程**
 ```bash
-1. 🍴 Fork 專案倉庫
-2. 🌿 創建功能分支
-   git checkout -b feature/amazing
-3. 💻 開發與測試
-4. 📤 提交 Pull Request
-5. 🔍 代碼審查
-6. 🎉 合併部署
+python train_dpo_only.py
 ```
 
-**🎯 貢獻領域**
-- 模型優化改進
-- 新功能開發
-- 測試用例補充
-- 文檔完善更新
+### 5.4 模型測試與評估
 
-</td>
-<td width="33%">
+使用互動式測試腳本進行模型效能評估：
 
-### 📊 **數據貢獻**
+```bash
+python test_model.py
+```
 
-**🏥 歡迎提供**
-- 匿名醫療對話資料
-- 藥物知識更新
-- 安全案例分析
-- 多語言翻譯
+此腳本提供以下功能：
 
-**🛡️ 隱私保護**
-- 嚴格數據脫敏
-- 符合 GDPR 標準
-- 醫療隱私保護
-- 安全加密傳輸
+- 多輪連續對話
+- 上下文記憶
+- 即時回應生成
+- 互動式命令介面（輸入 'exit' 或 'quit' 結束對話）
 
-</td>
-<td width="33%">
+## 6. 專案結構
 
-### 🌍 **社群建設**
+```
+med_gpt/
+├── train_med_llm.py              # SFT 階段訓練腳本
+├── train_dpo.py                  # DPO 階段訓練腳本（含參考模型）
+├── train_dpo_only.py             # DPO 階段獨立訓練腳本
+├── combine.py                    # 整合式兩階段訓練腳本
+├── test_model.py                 # 互動式測試腳本
+├── med_dataset.json              # 監督式微調資料集
+├── dpo_dataset.json              # 直接偏好優化資料集
+├── requirements.txt              # Python 依賴套件清單
+└── README.md                     # 專案說明文件
+```
 
-**💬 交流平台**
-- GitHub Issues 問題討論
-- Discord 即時交流群
-- 學術論文合作發表
-- 技術分享會定期舉辦
+## 7. 訓練輸出
 
-**🏆 榮譽體系**
-- 貢獻者榮譽榜
-- 開源獎勵計劃
-- 技術專家認證
-- 社群領袖培養
+訓練完成後，系統將產生以下輸出：
 
-</td>
-</tr>
-</table>
+### 7.1 SFT 階段輸出
 
----
+```
+llama-3.1-8b-med-robot-adapter-sft/
+├── final/
+│   ├── adapter_config.json
+│   ├── adapter_model.safetensors
+│   └── README.md
+└── checkpoint-*/
+```
 
-## 📄 開源授權條款
+### 7.2 DPO 階段輸出
 
-<div align="center">
+```
+llama-3.1-8b-med-robot-adapter-dpo/
+├── final/
+│   ├── adapter_config.json
+│   ├── adapter_model.safetensors
+│   └── README.md
+└── checkpoint-*/
+```
 
-### 📜 **MIT License - 自由創新，共享未來**
+**注意事項：** 最終推理時應使用 DPO 階段產生的 Adapter，因其已經過安全性與專業性優化。
 
-</div>
+## 8. 技術特點與創新
+
+### 8.1 記憶體效率
+
+透過結合 LoRA 與 4-bit 量化技術，本系統僅需 12GB VRAM 即可完成訓練，相較於全參數微調節省約 85% 的記憶體使用量。
+
+### 8.2 訓練效率
+
+採用梯度累積與混合精度訓練技術，在有限批次大小下仍可維持訓練穩定性與收斂速度。
+
+### 8.3 安全性保障
+
+透過 DPO 階段的偏好學習，系統能夠自動識別並避免產生不安全或不適當的醫療建議，始終優先考慮患者安全。
+
+### 8.4 專業性與同理心
+
+系統訓練過程強調醫療專業知識的準確性，同時注重語言表達的同理心與溫暖度，提供人性化的互動體驗。
+
+## 9. 限制與未來工作
+
+### 9.1 當前限制
+
+1. **非診斷工具**：本系統僅供參考，不能替代專業醫療診斷與治療。
+2. **語言限制**：目前主要支援繁體中文，多語言支援有待擴展。
+3. **知識更新**：模型知識截止於訓練資料收集時間，無法即時更新最新醫療資訊。
+4. **計算資源**：儘管已優化記憶體使用，仍需具備 GPU 的計算環境。
+
+### 9.2 未來研究方向
+
+1. **多模態整合**：整合視覺與語音資訊，提供更全面的醫療服務。
+2. **知識庫擴展**：建立動態知識更新機制，確保醫療資訊的時效性。
+3. **個人化服務**：根據患者歷史記錄提供個人化的用藥建議。
+4. **跨語言支援**：擴展至多語言環境，服務更廣泛的使用者群體。
+5. **實體機器人整合**：與自主導航送藥機器人結合，實現端到端的智慧醫療服務。
+
+## 10. 安全聲明與責任限制
+
+### 10.1 醫療免責聲明
+
+本系統僅供研究與輔助參考用途，不構成任何形式的醫療建議、診斷或治療建議。使用者在任何情況下均應：
+
+1. 諮詢合格的醫療專業人員
+2. 遵循醫師處方與指示
+3. 不得將系統輸出作為醫療決策的唯一依據
+4. 緊急情況請立即就醫或撥打急救電話
+
+### 10.2 使用限制
+
+本系統嚴禁用於：
+
+1. 替代專業醫療診斷與治療
+2. 處方藥物或調整藥物劑量
+3. 處理危及生命的緊急情況
+4. 任何可能危害患者安全的場景
+
+### 10.3 法律責任
+
+使用者需自行承擔使用本系統所產生的一切風險與責任。開發團隊不對因使用本系統而導致的任何直接或間接損失負責。
+
+## 11. 開源授權
+
+本專案採用 MIT License 授權條款。
 
 ```
 MIT License
@@ -1107,88 +394,29 @@ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 ```
 
----
+## 12. 致謝
 
-## 🙏 致謝與感恩
+本研究感謝以下機構與專案的技術支援：
 
-<div align="center">
+- **Meta AI**：提供 Llama 3.1 基礎模型
+- **Hugging Face**：提供 Transformers 函式庫與模型託管服務
+- **Microsoft**：提供 DeepSpeed 與 Accelerate 訓練優化工具
+- **NVIDIA**：提供 CUDA 計算平台
+- **開源社群**：PyTorch、PEFT、TRL、BitsAndBytes 等專案的貢獻者
 
-### 🌟 **感謝所有讓醫療 AI 成為可能的人們**
+感謝所有參與資料標註與驗證的醫療專業人員，以及為本專案提供寶貴建議的研究人員與開發者。
 
-</div>
+## 13. 聯絡資訊
 
-<table>
-<tr>
-<td width="33%">
+如有技術問題或合作意向，歡迎透過 GitHub Issues 提出討論。
 
-### 🤖 **技術夥伴**
+## 14. 參考文獻
 
-**🔥 核心技術支持**
-- **Meta AI** - Llama 3.1 基礎模型
-- **Hugging Face** - Transformers 生態系統
-- **Microsoft** - DeepSpeed 訓練框架
-- **NVIDIA** - CUDA 計算平台
-
-**🛠️ 開源工具**
-- PyTorch 深度學習框架
-- TRL 強化學習函式庫
-- PEFT 參數高效微調
-- BitsAndBytes 量化優化
-
-</td>
-<td width="33%">
-
-### 🏥 **醫療專家**
-
-**👨‍⚕️ 專業顧問團隊**
-- 臨床藥理學專家
-- 醫院資訊系統專家
-- 醫療法規諮詢顧問
-- 患者安全評估專家
-
-**🎓 學術合作機構**
-- 頂尖醫學院校
-- 醫療研究機構
-- 藥學專業學會
-- 國際標準組織
-
-</td>
-<td width="33%">
-
-### 🌍 **開源社群**
-
-**👥 全球開發者**
-- 代碼貢獻者
-- 測試志願者
-- 文檔翻譯者
-- 社群維護者
-
-**💝 特別感謝**
-- 所有 Issue 回報者
-- Beta 測試用戶
-- 學術研究合作者
-- 醫療 AI 推廣者
-
-</td>
-</tr>
-</table>
+1. Touvron, H., et al. (2023). "Llama 2: Open Foundation and Fine-Tuned Chat Models." arXiv preprint arXiv:2307.09288.
+2. Hu, E. J., et al. (2021). "LoRA: Low-Rank Adaptation of Large Language Models." arXiv preprint arXiv:2106.09685.
+3. Rafailov, R., et al. (2023). "Direct Preference Optimization: Your Language Model is Secretly a Reward Model." arXiv preprint arXiv:2305.18290.
+4. Dettmers, T., et al. (2023). "QLoRA: Efficient Finetuning of Quantized LLMs." arXiv preprint arXiv:2305.14314.
 
 ---
 
-<div align="center">
-
-# 🌟 **Med-LLM: 醫療 AI 的未來，從這裡開始**
-
-### *「科技有溫度，AI 有人情，讓每一次醫療互動都充滿關懷」*
-
-<img src="https://img.shields.io/badge/🎯%20Mission-Save%20Lives%20with%20AI-red?style=for-the-badge" alt="Mission">
-<img src="https://img.shields.io/badge/💫%20Vision-Global%20Healthcare%20AI-blue?style=for-the-badge" alt="Vision">
-<img src="https://img.shields.io/badge/❤️%20Values-Safety%20First-green?style=for-the-badge" alt="Values">
-
----
-
-**🏥 讓 AI 成為醫療守護者，讓科技點亮生命之光 🌟**
-
-*Built with ❤️ for the global healthcare community*
-
-</div>
+最後更新日期：2024 年
